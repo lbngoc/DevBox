@@ -15,7 +15,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./traefik.toml:/traefik.toml
 
-  mysql:
+  db:
     restart: always
     image: mysql:5.7
     networks:
