@@ -1,0 +1,5 @@
+.*-data
+*.sublime*
+docker-compose.override.yml
+acme.json
+.DS_Store

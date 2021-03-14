@@ -1,0 +1,79 @@
+version: '3'
+
+services:
+  traefik:
+    image: traefik:v2.0
+    container_name: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - proxy
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik.yml:/traefik.yml:ro
+      - ./acme.json:/acme.json
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.entrypoints=http"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.test`)"
+      - "traefik.http.middlewares.traefik-auth.basicauth.users=USER:PASSWORD"
+      - "traefik.http.middlewares.traefik-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.traefik.middlewares=traefik-https-redirect"
+      - "traefik.http.routers.traefik-secure.entrypoints=https"
+      - "traefik.http.routers.traefik-secure.rule=Host(`traefik.test`)"
+      - "traefik.http.routers.traefik-secure.middlewares=traefik-auth"
+      - "traefik.http.routers.traefik-secure.tls=true"
+      - "traefik.http.routers.traefik-secure.tls.certresolver=http"
+      - "traefik.http.routers.traefik-secure.service=api@internal"
+
+  db:
+    restart: unless-stopped
+    image: mysql:5.7
+    networks:
+      - proxy
+    ports:
+      - "3306:3306"
+    labels:
+      - "traefik.enable=false"
+    volumes:
+      - ".mysql-data:/var/lib/mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+
+  # postgres:
+  #   restart: unless-stopped
+  #   image: postgres:9.6
+  #   networks:
+  #     - proxy
+  #   ports:
+  #     - "5432:5432"
+  #   labels:
+  #     - "traefik.enable=false"
+  #   volumes:
+  #     - ".pg-data:/var/lib/postgresql/data"
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: postgres
+
+  mailhog:
+    restart: unless-stopped
+    image: mailhog/mailhog
+    container_name: mailhog
+    networks:
+      - proxy
+    ports:
+      - "1025:1025"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mailhog.entrypoints=http"
+      - "traefik.http.routers.mailhog.rule=Host(`mailhog.test`)"
+      - "traefik.http.services.mailhog.loadbalancer.server.port=8025"
+
+networks:
+  proxy:
+    external: true
