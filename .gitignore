@@ -1,0 +1,5 @@
+.db
+.pgdata
+*.zip
+*.sql
+.DS_Store

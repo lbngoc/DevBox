@@ -1,0 +1,97 @@
+version: "3"
+
+services:
+  proxy:
+    restart: always
+    image: traefik:v1.7
+    #command: --web --docker --docker.domain=box.ngoclb.com --logLevel=DEBUG
+    networks:
+      - reverse_proxy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik.toml:/traefik.toml
+
+  db:
+    restart: always
+    image: mysql:5.7
+    networks:
+      - reverse_proxy
+    ports:
+      - "3306:3306"
+    labels:
+      - "traefik.enable=false"
+    volumes:
+      - ".db:/var/lib/mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+
+  postgres:
+    restart: always
+    image: postgres:9.6
+    networks:
+      - reverse_proxy
+    ports:
+      - "5432:5432"
+    labels:
+      - "traefik.enable=false"
+    volumes:
+      - ".pgdata:/var/lib/postgresql/data"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+  mailhog:
+    restart: unless-stopped
+    image: mailhog/mailhog
+    networks:
+      - reverse_proxy
+    ports:
+      - "1025:1025"
+    labels:
+      - 'traefik.backend=mailhog'
+      - 'traefik.port=8025'
+      - 'traefik.frontend.rule=Host:mailhog.localhost'
+      - 'traefik.frontend.entryPoints=http'
+
+  adminer:
+    image: adminer
+    restart: unless-stopped
+    networks:
+      - reverse_proxy
+    labels:
+      - 'traefik.backend=adminer'
+      - 'traefik.port=8080'
+      - 'traefik.frontend.rule=Host:adminer.localhost'
+      - 'traefik.frontend.entryPoints=http'
+
+  # portainer:
+  #   image: portainer/portainer
+  #   command: ["-H", "unix:///var/run/docker.sock", "--admin-password", "$$2y$$05$$t1IgSEoSepV4QPtl/Sm6WeBbGIRFrYu6XF1IgZDdUT6lqxX/j1a82"]
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #     - ./portainer/data:/data
+  #   # ports:
+  #   #   - 9000
+  #   labels:
+  #     - 'traefik.backend=portainer'
+  #     - 'traefik.port=9000'
+  #     - 'traefik.frontend.rule=Host:portainer.localhost'
+  #     - 'traefik.frontend.entryPoints=https'
+  #   networks:
+  #     - reverse_proxy
+
+networks:
+  reverse_proxy:
+    driver: bridge
+
+
+# For other container
+# networks:
+#   default:
+#     external:
+#       name: traefik_reverse_proxy
+
