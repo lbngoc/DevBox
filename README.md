@@ -41,7 +41,7 @@ echo "nameserver 127.0.0.1" | sudo tee -a /etc/resolver/test > /dev/null
 brew install mkcert
 brew install nss # only if you use Firefox
 mkcert -install
-mkcert -cert-file certs/local.crt -key-file certs/local.key "this.test" "*.this.test"
+mkcert -cert-file certs/local.crt -key-file certs/local.key localhost "*.localhost" 127.0.0.1 ::1 this.test "*.this.test"
 ```
 
 ### 2. Docker & Traefik
@@ -80,7 +80,7 @@ Done, we need to start Traefik at first time
 docker-compose up -d
 ```
 
-Go on https://traefik.this.test you should have the traefik web dashboard serve over https
+Go on https://localhost or https://traefik.this.test you should have the traefik web dashboard serve over https
 
 ## Usage
 

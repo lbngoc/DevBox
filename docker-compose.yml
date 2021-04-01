@@ -35,7 +35,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik.entrypoints=http,https"
-      - "traefik.http.routers.traefik.rule=Host(`traefik.this.test`)"
+      - "traefik.http.routers.traefik.rule=Host(`localhost`,`traefik.this.test`)"
       - "traefik.http.routers.traefik.service=api@internal"
       - "traefik.http.routers.traefik.tls=true"
       # - "traefik.http.routers.traefik.middlewares=traefik-auth"
