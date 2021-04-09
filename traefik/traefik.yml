@@ -1,6 +1,8 @@
 entryPoints:
   http:
     address: ":80"
+    forwardedHeaders:
+      insecure: true
     http:
       redirections:
         entryPoint:
@@ -9,6 +11,11 @@ entryPoints:
           permanent: true
   https:
     address: ":443"
+    http:
+      middlewares:
+        - custom-header@file
+        - cors-header@file
+        # - test-auth@file
 
 providers:
   docker:
@@ -19,7 +26,7 @@ providers:
     watch: false
 
 certificatesResolvers:
-  http:
+  letsencrypt:
     acme:
       email: devbox@localhost.com
       storage: /acme.json

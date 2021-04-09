@@ -38,14 +38,12 @@ services:
       - "traefik.http.routers.traefik.rule=Host(`localhost`,`traefik.this.test`)"
       - "traefik.http.routers.traefik.service=api@internal"
       - "traefik.http.routers.traefik.tls=true"
-      # - "traefik.http.routers.traefik.middlewares=traefik-auth"
-      # - "traefik.http.middlewares.traefik-auth.basicauth.users=USER:PASSWORD"
       # - "traefik.http.middlewares.traefik-https-redirect.redirectscheme.scheme=https"
       # - "traefik.http.routers.traefik.middlewares=traefik-https-redirect"
       # - "traefik.http.routers.traefik-secure.entrypoints=https"
-      # - "traefik.http.routers.traefik-secure.rule=Host(`traefik.this.test`)"
+      # - "traefik.http.routers.traefik-secure.rule=Host(`traefik.ngoclb.com`)"
       # - "traefik.http.routers.traefik-secure.tls=true"
-      # - "traefik.http.routers.traefik-secure.tls.certresolver=http"
+      # - "traefik.http.routers.traefik-secure.tls.certresolver=letsencrypt"
       # - "traefik.http.routers.traefik-secure.service=api@internal"
 
   db:
@@ -54,8 +52,6 @@ services:
     container_name: mysqldb
     ports:
       - "3306:3306"
-    labels:
-      - "traefik.enable=false"
     volumes:
       - ".mysql-data:/var/lib/mysql"
     environment:

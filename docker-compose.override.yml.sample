@@ -1,0 +1,57 @@
+version: '3'
+
+services:
+  traefik:
+    labels:
+      # - "traefik.http.middlewares.traefik-auth.basicauth.users=dev:$$apr1$$/OOiAm.f$$cSmiWxXVnBS2UnQ.tCopn0"
+      - "traefik.http.routers.traefik.middlewares=default-auth"
+
+  db:
+    restart: unless-stopped
+    image: mariadb:10.5
+    container_name: mariadb
+    ports:
+      - "3306:3306"
+    volumes:
+      - ".maria-data:/var/lib/mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+
+  elasticvue:
+    restart: unless-stopped
+    image: cars10/elasticvue
+    container_name: elasticvue
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.elasticvue.rule=Host(`elasticvue.this.test`)"
+      - "traefik.http.routers.elasticvue.tls=true"
+      - "traefik.http.services.elasticvue.loadbalancer.server.port=8080"
+
+  # postgres:
+  #   restart: unless-stopped
+  #   image: postgres:9.6
+  #   networks:
+  #     - proxy
+  #   ports:
+  #     - "5432:5432"
+  #   labels:
+  #     - "traefik.enable=false"
+  #   volumes:
+  #     - ".pg-data:/var/lib/postgresql/data"
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: postgres
+
+  # mailhog:
+  #   restart: unless-stopped
+  #   image: mailhog/mailhog
+  #   container_name: mailhog
+  #   networks:
+  #     - proxy
+  #   ports:
+  #     - "1025:1025"
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.mailhog.entrypoints=http"
+  #     - "traefik.http.routers.mailhog.rule=Host(`mailhog.test`)"
+  #     - "traefik.http.services.mailhog.loadbalancer.server.port=8025"
